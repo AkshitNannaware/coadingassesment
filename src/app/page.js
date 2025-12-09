@@ -3,87 +3,13 @@ import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import NewsletterForm from "@/components/NewsletterForm";
 import { FaStar, FaCheck, FaRocket, FaPaintBrush, FaChartLine, FaLaptopCode, FaPhone, FaEnvelope, FaMapMarkerAlt, FaArrowRight } from "react-icons/fa";
-
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-// async function getProjects() {
-//   try {
-//     const res = await fetch(`${baseUrl}/api/projects`, { 
-//       cache: "no-store",
-//       headers: {
-//         'Content-Type': 'application/json',
-//       }
-//     });
-//     if (!res.ok) {
-//       throw new Error(`Failed to fetch projects: ${res.status}`);
-//     }
-//     const data = await res.json();
-//     return data.projects || [];
-//   } catch (error) {
-//     console.error("Error fetching projects:", error);
-//     return [];
-//   }
-// }
-
-// async function getClients() {
-//   try {
-//     const res = await fetch(`${baseUrl}/api/clients`, { 
-//       cache: "no-store",
-//       headers: {
-//         'Content-Type': 'application/json',
-//       }
-//     });
-//     if (!res.ok) {
-//       throw new Error(`Failed to fetch clients: ${res.status}`);
-//     }
-//     const data = await res.json();
-//     return data.clients || [];
-//   } catch (error) {
-//     console.error("Error fetching clients:", error);
-//     return [];
-//   }
-// }
-
-async function getProjects() {
-  try {
-    const res = await fetch(`${baseUrl}/api/projects`, { 
-      next: { revalidate: 10 }, // 10 seconds mein refresh hoga
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch projects: ${res.status}`);
-    }
-    const data = await res.json();
-    return data.projects || [];
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-    return [];
-  }
-}
-
-async function getClients() {
-  try {
-    const res = await fetch(`${baseUrl}/api/clients`, { 
-      next: { revalidate: 10 }, // 10 seconds mein refresh hoga
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch clients: ${res.status}`);
-    }
-    const data = await res.json();
-    return data.clients || [];
-  } catch (error) {
-    console.error("Error fetching clients:", error);
-    return [];
-  }
-}
+import { dataStore } from "@/lib/data";
 
 export default async function Home() {
-  const [projects, clients] = await Promise.all([getProjects(), getClients()]);
+  // Directly use dataStore instead of making HTTP requests
+  // This works in both development and production
+  const projects = dataStore.getProjects();
+  const clients = dataStore.getClients();
 
   const services = [
     {

@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Consultation, Design & Marketing | Admin Ready",
+  title: "NexaSphere Technologies",
   description:
     "Landing page with admin panel to manage projects, clients, contacts, and newsletter subscriptions.",
 };

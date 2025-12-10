@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { dataStore } from "@/lib/data";
 
-// Handle GET request for admin panel
 export async function GET() {
   try {
     const contacts = dataStore.getContacts();
@@ -20,12 +19,10 @@ export async function GET() {
   }
 }
 
-// Handle POST request from contact form
 export async function POST(request) {
   try {
     const body = await request.json();
     
-    // Validate required fields
     if (!body.fullName || !body.email) {
       return NextResponse.json(
         { 

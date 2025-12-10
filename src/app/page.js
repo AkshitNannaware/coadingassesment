@@ -6,17 +6,25 @@ import { FaStar, FaCheck, FaRocket, FaPaintBrush, FaChartLine, FaLaptopCode, FaP
 import { dataStore } from "@/lib/data";
 
 export default async function Home() {
-  // const projects = dataStore.getProjects();
-  // const clients = dataStore.getClients();
-
   let projects = [];
   let clients = [];
 
   try {
-    // Fetch data from API routes
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    
     const [projectsRes, clientsRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/projects`, { cache: 'no-store' }),
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/clients`, { cache: 'no-store' })
+      fetch(`${baseUrl}/api/projects`, { 
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }),
+      fetch(`${baseUrl}/api/clients`, { 
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
     ]);
     
     if (projectsRes.ok) {
@@ -30,6 +38,8 @@ export default async function Home() {
     }
   } catch (error) {
     console.error("Error fetching data:", error);
+    projects = [];
+    clients = [];
   }
 
   const services = [

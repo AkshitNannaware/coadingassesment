@@ -2,20 +2,41 @@ import { NextResponse } from "next/server";
 import { dataStore } from "@/lib/data";
 
 export async function GET() {
-  return NextResponse.json({ clients: dataStore.getClients() });
+  try {
+    const clients = dataStore.getClients();
+    return NextResponse.json({ 
+      success: true, 
+      clients 
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: error?.message || "Failed to fetch clients" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request) {
   try {
     const body = await request.json();
+    
+    if (!body.name || !body.designation) {
+      return NextResponse.json(
+        { success: false, message: "Name and designation are required" },
+        { status: 400 }
+      );
+    }
+    
     const client = dataStore.addClient({
       name: body.name,
       designation: body.designation,
       description: body.description,
       image: body.image,
     });
+    
     return NextResponse.json({ 
       success: true, 
+      message: "Client added successfully",
       client 
     }, { status: 201 });
   } catch (error) {
@@ -29,14 +50,24 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const body = await request.json();
+    
+    if (!body.id) {
+      return NextResponse.json(
+        { success: false, message: "Client ID is required" },
+        { status: 400 }
+      );
+    }
+    
     const client = dataStore.updateClient(body.id, {
       name: body.name,
       designation: body.designation,
       description: body.description,
       image: body.image,
     });
+    
     return NextResponse.json({ 
       success: true, 
+      message: "Client updated successfully",
       client 
     });
   } catch (error) {
@@ -60,6 +91,7 @@ export async function DELETE(request) {
     }
     
     const deletedClient = dataStore.deleteClient(id);
+    
     return NextResponse.json({ 
       success: true, 
       message: "Client deleted successfully",

@@ -176,19 +176,6 @@ export default function AdminPage() {
     setActiveTab("projects");
   };
 
-  // const handleDeleteProject = async (id) => {
-  //   if (!confirm("Are you sure you want to delete this project?")) return;
-    
-  //   try {
-  //     await fetch(`/api/projects?id=${id}`, { method: "DELETE" });
-  //     await loadData();
-  //     setMessage({ type: "success", text: "Project deleted!" });
-  //   } catch (error) {
-  //     setMessage({ type: "error", text: "Failed to delete project" });
-  //   }
-  // };
-
-
   const handleDeleteProject = async (id) => {
     console.log("handleDeleteProject called with ID:", id);
     
@@ -233,16 +220,22 @@ export default function AdminPage() {
       if (clientForm.file) {
         image = await fileToDataUrl(clientForm.file);
       }
-
+  
       const url = "/api/clients";
       const method = clientForm.isEditing ? "PUT" : "POST";
       
-      await fetch(url, {
+      const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...clientForm, image }),
       });
-
+  
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save client");
+      }
+  
       setClientForm({
         id: "",
         name: "",
@@ -259,32 +252,29 @@ export default function AdminPage() {
         text: clientForm.isEditing ? "Client updated!" : "Client added!" 
       });
     } catch (error) {
-      setMessage({ type: "error", text: "Failed to save client" });
+      console.error("Client save error:", error);
+      setMessage({ type: "error", text: error.message || "Failed to save client" });
     } finally {
       setSaving(false);
     }
   };
-
-  const handleEditClient = (client) => {
-    setClientForm({
-      id: client.id,
-      name: client.name,
-      designation: client.designation,
-      description: client.description,
-      image: client.image,
-      file: null,
-      isEditing: true
-    });
-    setActiveTab("clients");
-  };
-
+  
   const handleDeleteClient = async (id) => {
     if (!confirm("Are you sure you want to delete this client?")) return;
     
     try {
-      await fetch(`/api/clients?id=${id}`, { method: "DELETE" });
-      await loadData();
-      setMessage({ type: "success", text: "Client deleted!" });
+      const response = await fetch(`/api/clients?id=${id}`, { 
+        method: "DELETE" 
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        await loadData();
+        setMessage({ type: "success", text: "Client deleted!" });
+      } else {
+        setMessage({ type: "error", text: data.message || "Failed to delete client" });
+      }
     } catch (error) {
       setMessage({ type: "error", text: "Failed to delete client" });
     }
@@ -846,12 +836,6 @@ export default function AdminPage() {
                           </td>
                           <td className="px-6 py-4 text-sm font-medium">
                             <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleEditClient(client)}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <FaEdit />
-                              </button>
                               <button
                                 onClick={() => handleDeleteClient(client.id)}
                                 className="text-red-600 hover:text-red-900"

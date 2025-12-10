@@ -6,10 +6,31 @@ import { FaStar, FaCheck, FaRocket, FaPaintBrush, FaChartLine, FaLaptopCode, FaP
 import { dataStore } from "@/lib/data";
 
 export default async function Home() {
-  // Directly use dataStore instead of making HTTP requests
-  // This works in both development and production
-  const projects = dataStore.getProjects();
-  const clients = dataStore.getClients();
+  // const projects = dataStore.getProjects();
+  // const clients = dataStore.getClients();
+
+  let projects = [];
+  let clients = [];
+
+  try {
+    // Fetch data from API routes
+    const [projectsRes, clientsRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/projects`, { cache: 'no-store' }),
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/clients`, { cache: 'no-store' })
+    ]);
+    
+    if (projectsRes.ok) {
+      const projectsData = await projectsRes.json();
+      projects = projectsData.projects || [];
+    }
+    
+    if (clientsRes.ok) {
+      const clientsData = await clientsRes.json();
+      clients = clientsData.clients || [];
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
 
   const services = [
     {

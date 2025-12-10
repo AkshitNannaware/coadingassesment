@@ -2,15 +2,24 @@ import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import NewsletterForm from "@/components/NewsletterForm";
+import { headers } from "next/headers";
 import { FaStar, FaCheck, FaRocket, FaPaintBrush, FaChartLine, FaLaptopCode, FaPhone, FaEnvelope, FaMapMarkerAlt, FaArrowRight } from "react-icons/fa";
-import { dataStore } from "@/lib/data";
 
 export default async function Home() {
   let projects = [];
   let clients = [];
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const headerList = headers();
+    const host = headerList.get("host");
+    const protocol =
+      process.env.NODE_ENV === "development" || host?.includes("localhost")
+        ? "http"
+        : "https";
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.APP_URL ||
+      (host ? `${protocol}://${host}` : "http://localhost:3000");
     
     const [projectsRes, clientsRes] = await Promise.all([
       fetch(`${baseUrl}/api/projects`, { 
